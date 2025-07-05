@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
+import { formatPrice } from "@/lib/utils"
 import Link from "next/link"
 
 export default function CheckoutSuccessPage() {
@@ -178,9 +179,9 @@ export default function CheckoutSuccessPage() {
                   {order.items.map((item: any, index: number) => (
                     <tr key={index}>
                       <td className="px-4 py-3">{item.name}</td>
-                      <td className="px-4 py-3 text-right">${item.price.toFixed(2)}</td>
-                      <td className="px-4 py-3 text-right">{item.quantity}</td>
-                      <td className="px-4 py-3 text-right">${(item.price * item.quantity).toFixed(2)}</td>
+                                        <td className="px-4 py-3 text-right">{formatPrice(item.price)}</td>
+                  <td className="px-4 py-3 text-right">{item.quantity}</td>
+                  <td className="px-4 py-3 text-right">{formatPrice(item.price * item.quantity)}</td>
                     </tr>
                   ))}
                 </tbody>

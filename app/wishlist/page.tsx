@@ -4,6 +4,7 @@ import { useWishlist } from "@/context/WishlistContext"
 import { useCart } from "@/context/CartContext"
 import Link from "next/link"
 import Image from "next/image"
+import { formatPrice } from "@/lib/utils"
 
 export default function WishlistPage() {
   const { wishlist, removeFromWishlist } = useWishlist()
@@ -33,7 +34,7 @@ export default function WishlistPage() {
             </div>
             <div className="p-4">
               <h2 className="text-lg font-semibold">{product.name}</h2>
-              <p className="text-gray-600">${product.price.toFixed(2)}</p>
+                              <p className="text-gray-600">{formatPrice(product.price)}</p>
               <div className="mt-4 flex space-x-2">
                 <button
                   onClick={() => {

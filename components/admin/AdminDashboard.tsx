@@ -10,25 +10,75 @@ export default function AdminDashboard() {
     totalUsers: 0,
     recentOrders: [],
   })
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
+
+  const fetchStats = async () => {
+    try {
+      setLoading(true)
+      setError("")
+      const response = await fetch("/api/admin/stats")
+      
+      if (!response.ok) {
+        throw new Error("Failed to fetch stats")
+      }
+      
+      const data = await response.json()
+      setStats(data)
+    } catch (error) {
+      console.error("Error fetching stats:", error)
+      setError("Failed to load dashboard data")
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const response = await fetch("/api/admin/stats")
-        const data = await response.json()
-        setStats(data)
-      } catch (error) {
-        console.error("Error fetching stats:", error)
-      }
-    }
-
     fetchStats()
   }, [])
 
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="bg-white p-6 rounded-lg shadow-md animate-pulse">
+              <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+              <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-8">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          {error}
+        </div>
+      </div>
+    )
+  }
+
+  const refreshStats = () => {
+    fetchStats()
+  }
+
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">Dashboard Overview</h1>
+        <button
+          onClick={refreshStats}
+          disabled={loading}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+        >
+          {loading ? "Refreshing..." : "Refresh"}
+        </button>
+      </div>
+      
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-lg font-semibold mb-2">Total Products</h2>

@@ -97,19 +97,27 @@ export async function POST(request: Request) {
       const { db } = await connectToDatabase();
       const body = await request.json();
   
-      const { orderId, pidx, userId } = body;
+      // Extract payment data from the request
+      const { 
+        pidx, 
+        transaction_id, 
+        status, 
+        purchase_order_id, 
+        amount, 
+        total_amount 
+      } = body;
   
       // Validation
-      if (!orderId || !pidx || !userId) {
+      if (!pidx || !purchase_order_id || !status) {
         return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
       }
   
-      if (!ObjectId.isValid(orderId)) {
-        return NextResponse.json({ error: 'Invalid orderId format' }, { status: 400 });
+      if (!ObjectId.isValid(purchase_order_id)) {
+        return NextResponse.json({ error: 'Invalid order ID format' }, { status: 400 });
       }
   
       // Debug logs for incoming payload
-      console.log('Received payment verification request: ', { orderId, pidx, userId });
+      console.log('Received payment verification request: ', { purchase_order_id, pidx, status });
   
       // Verify payment with Khalti
       const verifyUrl = 'https://a.khalti.com/api/v2/epayment/lookup/';
@@ -137,15 +145,15 @@ export async function POST(request: Request) {
         };
   
         // Update payment and order status to failed
-        await db.collection('payments').updateOne({ orderId }, { $set: paymentUpdate });
+        await db.collection('payments').updateOne({ orderId: purchase_order_id }, { $set: paymentUpdate });
         await db.collection('orders').updateOne(
-          { _id: new ObjectId(orderId) },
+          { _id: new ObjectId(purchase_order_id) },
           { $set: { 'paymentInfo.status': 'failed', status: 'failed' } }
         );
   
         return NextResponse.json({
           status: 'failed',
-          orderId,
+          orderId: purchase_order_id,
           khaltiResponse,
         });
       }
@@ -163,19 +171,23 @@ export async function POST(request: Request) {
       };
   
       // Log the update actions
-      console.log('Updating payment status to successful for orderId:', orderId);
-      console.log('Updating order status to shipped for orderId:', orderId);
+      console.log('Updating payment status to successful for orderId:', purchase_order_id);
+      console.log('Updating order status to shipped for orderId:', purchase_order_id);
   
       // Update payment and order in database
-      const paymentUpdateResult = await db.collection('payments').updateOne({ orderId }, { $set: paymentUpdate });
+      const paymentUpdateResult = await db.collection('payments').updateOne({ orderId: purchase_order_id }, { $set: paymentUpdate });
       console.log('Payment update result:', paymentUpdateResult);
   
-      const orderUpdateResult = await db.collection('orders').updateOne({ _id: new ObjectId(orderId) }, { $set: orderUpdate });
+      const orderUpdateResult = await db.collection('orders').updateOne({ _id: new ObjectId(purchase_order_id) }, { $set: orderUpdate });
       console.log('Order update result:', orderUpdateResult);
+  
+      // Get the updated order for response
+      const updatedOrder = await db.collection('orders').findOne({ _id: new ObjectId(purchase_order_id) });
   
       return NextResponse.json({
         status: 'successful',
-        orderId,
+        orderId: purchase_order_id,
+        order: updatedOrder,
         khaltiResponse, // Optional: useful for debugging or logging
       });
     } catch (error) {

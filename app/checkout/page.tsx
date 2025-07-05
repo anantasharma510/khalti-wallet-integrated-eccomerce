@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { useCart } from "@/context/CartContext"
 import { useAuth } from "@/context/AuthContext"
 import Image from "next/image"
+import { formatPrice } from "@/lib/utils"
 
 export default function CheckoutPage() {
   const { cart, loading: cartLoading } = useCart()
@@ -295,7 +296,7 @@ export default function CheckoutPage() {
                       Processing...
                     </>
                   ) : (
-                    <>Pay with Khalti - ${totalPrice.toFixed(2)}</>
+                    <>Pay with Khalti - {formatPrice(totalPrice)}</>
                   )}
                 </button>
               </div>
@@ -313,17 +314,17 @@ export default function CheckoutPage() {
                   <div>
                     <p className="font-medium">{item.product.name}</p>
                     <p className="text-sm text-gray-600">
-                      ${item.product.price.toFixed(2)} x {item.quantity}
+                      {formatPrice(item.product.price)} x {item.quantity}
                     </p>
                   </div>
-                  <p className="font-medium">${(item.product.price * item.quantity).toFixed(2)}</p>
+                  <p className="font-medium">{formatPrice(item.product.price * item.quantity)}</p>
                 </div>
               ))}
 
               <div className="border-t pt-4">
                 <div className="flex justify-between font-semibold">
                   <p>Total</p>
-                  <p>${totalPrice.toFixed(2)}</p>
+                  <p>{formatPrice(totalPrice)}</p>
                 </div>
               </div>
             </div>

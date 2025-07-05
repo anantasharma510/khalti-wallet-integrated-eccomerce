@@ -8,6 +8,7 @@ import Image from "next/image"
 import { useCart } from "@/context/CartContext"
 import { useWishlist } from "@/context/WishlistContext"
 import type { Product } from "@/lib/types"
+import { formatPrice } from "@/lib/utils"
 
 export default function ProductList({ products }: { products: Product[] }) {
   const { addToCart } = useCart()
@@ -140,7 +141,7 @@ export default function ProductList({ products }: { products: Product[] }) {
             <h2 className="text-lg font-semibold mb-2 group-hover:text-blue-600 transition-colors">{product.name}</h2>
             <p className="text-gray-500 text-sm mb-3 line-clamp-2 flex-grow">{product.description}</p>
             <div className="flex justify-between items-center">
-              <p className="text-lg font-bold text-blue-700">${product.price.toFixed(2)}</p>
+              <p className="text-lg font-bold text-blue-700">{formatPrice(product.price)}</p>
               <span className="text-sm text-gray-500">{product.stock > 0 ? "In stock" : "Out of stock"}</span>
             </div>
           </div>

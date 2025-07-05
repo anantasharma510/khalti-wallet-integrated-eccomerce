@@ -8,6 +8,8 @@ import Image from "next/image"
 import { useCart } from "@/context/CartContext"
 import { useWishlist } from "@/context/WishlistContext"
 import type { Product } from "@/lib/types"
+import { formatPrice } from "@/lib/utils"
+import { Star } from "lucide-react"
 
 export default function ProductGrid({ products }: { products: Product[] }) {
   const { addToCart } = useCart()
@@ -125,7 +127,32 @@ export default function ProductGrid({ products }: { products: Product[] }) {
           </div>
           <div className="p-4">
             <h2 className="text-lg font-semibold group-hover:text-blue-600 transition-colors">{product.name}</h2>
-            <p className="text-gray-600 mt-1">${product.price.toFixed(2)}</p>
+            <p className="text-gray-600 mt-1">{formatPrice(product.price)}</p>
+            
+            {/* Rating */}
+            {product.averageRating && product.averageRating > 0 && (
+              <div className="flex items-center mt-2">
+                <div className="flex">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      className={`w-3 h-3 ${
+                        star <= product.averageRating!
+                          ? "text-yellow-400 fill-current"
+                          : "text-gray-300"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <span className="text-xs text-gray-600 ml-1">
+                  {product.averageRating.toFixed(1)}
+                  {product.reviewCount && product.reviewCount > 0 && (
+                    <span className="text-gray-400"> ({product.reviewCount})</span>
+                  )}
+                </span>
+              </div>
+            )}
+            
             {product.stock <= 5 && (
               <p className="text-sm text-red-600 mt-1">
                 {product.stock === 0 ? "Out of stock" : `Only ${product.stock} left`}

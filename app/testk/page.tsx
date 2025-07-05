@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import axios from 'axios'
+import { formatPrice } from '@/lib/utils'
 
 type ShippingAddress = {
   fullName: string
@@ -145,13 +146,13 @@ export default function TestKPage() {
                 <div>
                   {item.product.name} × {item.quantity}
                 </div>
-                <div>Rs. {item.product.price * item.quantity}</div>
+                <div>{formatPrice(item.product.price * item.quantity)}</div>
               </div>
             ))}
             
             <div className="flex justify-between py-4 font-bold">
               <div>Total</div>
-              <div>Rs. {totalAmount}</div>
+              <div>{formatPrice(totalAmount)}</div>
             </div>
 
             <button

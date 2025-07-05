@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server"
 import { ObjectId } from "mongodb"
 import { connectToDatabase } from "@/lib/mongodb"
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "@/lib/auth"
 import { uploadImage } from "@/lib/upload"
+import { checkAdminAuth } from "@/lib/adminAuth"
 
 // Get a single product
 export async function GET(request: Request, { params }: { params: { id: string } }) {
@@ -27,10 +26,9 @@ export async function GET(request: Request, { params }: { params: { id: string }
 // Update a product (admin only)
 export async function PUT(request: Request, { params }: { params: { id: string } }) {
   try {
-    const session = await getServerSession(authOptions)
-
-    if (!session || session.user.role !== "admin") {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+    const authResult = await checkAdminAuth()
+    if (authResult.error) {
+      return authResult.error
     }
 
     const formData = await request.formData()
@@ -77,10 +75,9 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 // Delete a product (admin only)
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
   try {
-    const session = await getServerSession(authOptions)
-
-    if (!session || session.user.role !== "admin") {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+    const authResult = await checkAdminAuth()
+    if (authResult.error) {
+      return authResult.error
     }
 
     const { db } = await connectToDatabase()

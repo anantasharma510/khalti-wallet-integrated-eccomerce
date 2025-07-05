@@ -14,6 +14,7 @@ export default function EditProductForm({ product }: { product: Product }) {
   const [stock, setStock] = useState(product.stock.toString())
   const [image, setImage] = useState<File | null>(null)
   const [error, setError] = useState("")
+  const [success, setSuccess] = useState("")
   const [loading, setLoading] = useState(false)
   const router = useRouter()
 
@@ -26,11 +27,20 @@ export default function EditProductForm({ product }: { product: Product }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
+    setSuccess("")
     setLoading(true)
 
     try {
       if (!name || !description || !price || !stock) {
         throw new Error("Name, description, price, and stock are required")
+      }
+
+      if (Number(price) <= 0) {
+        throw new Error("Price must be greater than 0")
+      }
+
+      if (Number(stock) < 0) {
+        throw new Error("Stock cannot be negative")
       }
 
       const formData = new FormData()
@@ -53,9 +63,12 @@ export default function EditProductForm({ product }: { product: Product }) {
         throw new Error(data.message || "Failed to update product")
       }
 
-      router.push("/admin/products")
+      setSuccess("Product updated successfully! Redirecting...")
+      setTimeout(() => {
+        router.push("/admin/products")
+      }, 1500)
     } catch (err: any) {
-      setError(err.message)
+      setError(err.message || "An unexpected error occurred")
     } finally {
       setLoading(false)
     }
@@ -66,6 +79,7 @@ export default function EditProductForm({ product }: { product: Product }) {
       <h1 className="text-2xl font-bold mb-6">Edit Product</h1>
 
       {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
+      {success && <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">{success}</div>}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
@@ -98,7 +112,7 @@ export default function EditProductForm({ product }: { product: Product }) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label htmlFor="price" className="block mb-1 font-medium">
-              Price ($)
+              Price (NPR)
             </label>
             <input
               id="price"

@@ -3,6 +3,9 @@ import { getProductById, getProducts } from "@/lib/products"
 import AddToCartButton from "@/components/AddToCartButton"
 import AddToWishlistButton from "@/components/AddToWishlistButton"
 import Link from "next/link"
+import { formatPrice } from "@/lib/utils"
+import ProductReviews from "@/components/ProductReviews"
+import { Suspense } from "react"
 
 // Generate static params for all products
 export async function generateStaticParams() {
@@ -12,8 +15,8 @@ export async function generateStaticParams() {
   }))
 }
 
-export default async function ProductPage({ params }: { params: { id: string } }) {
-  const id = params.id
+export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const product = await getProductById(id)
   const relatedProducts = await getProducts()
 
@@ -88,7 +91,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
           <div>
             <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
             <div className="flex items-center gap-4">
-              <span className="text-2xl font-bold text-blue-700">${product.price.toFixed(2)}</span>
+              <span className="text-2xl font-bold text-blue-700">{formatPrice(product.price)}</span>
               {product.stock > 0 ? (
                 <span className="px-2 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">
                   In Stock ({product.stock})
@@ -97,6 +100,31 @@ export default async function ProductPage({ params }: { params: { id: string } }
                 <span className="px-2 py-1 bg-red-100 text-red-800 text-sm font-medium rounded-full">Out of Stock</span>
               )}
             </div>
+            {product.averageRating && product.averageRating > 0 && (
+              <div className="flex items-center mt-2">
+                <div className="flex">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <svg
+                      key={star}
+                      className={`w-5 h-5 ${
+                        star <= product.averageRating!
+                          ? "text-yellow-400 fill-current"
+                          : "text-gray-300"
+                      }`}
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  ))}
+                </div>
+                <span className="text-sm text-gray-600 ml-2">
+                  {product.averageRating.toFixed(1)} out of 5
+                  {product.reviewCount && product.reviewCount > 0 && (
+                    <span className="text-gray-400"> • {product.reviewCount} reviews</span>
+                  )}
+                </span>
+              </div>
+            )}
           </div>
 
           <div className="prose max-w-none">
@@ -136,20 +164,12 @@ export default async function ProductPage({ params }: { params: { id: string } }
               </svg>
               <span className="font-medium">Free shipping</span>
             </div>
-            <p className="text-sm text-gray-600">On orders over $50. Usually ships within 2-3 business days.</p>
+            <p className="text-sm text-gray-600">On orders over NPR 5000. Usually ships within 2-3 business days.</p>
           </div>
         </div>
       </div>
 
-      {/* Product Details Tabs */}
-      <div className="border-b">
-        <div className="flex space-x-8">
-          <button className="border-b-2 border-blue-600 text-blue-600 font-medium py-4 px-1">Description</button>
-          <button className="text-gray-500 hover:text-gray-700 py-4 px-1">Specifications</button>
-          <button className="text-gray-500 hover:text-gray-700 py-4 px-1">Reviews</button>
-        </div>
-      </div>
-
+      {/* Product Description */}
       <div className="prose max-w-none">
         <h2>Product Description</h2>
         <p>{product.description}</p>
@@ -165,6 +185,14 @@ export default async function ProductPage({ params }: { params: { id: string } }
           <li>Easy to clean and maintain</li>
         </ul>
       </div>
+
+      {/* Product Reviews */}
+      <Suspense fallback={<div className="animate-pulse">Loading reviews...</div>}>
+        <ProductReviews 
+          productId={product._id} 
+          averageRating={product.averageRating || 0}
+        />
+      </Suspense>
 
       {/* Related Products */}
       {filteredRelatedProducts.length > 0 && (
@@ -187,7 +215,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
                 </div>
                 <div className="p-4">
                   <h3 className="font-medium group-hover:text-blue-600 transition-colors">{relatedProduct.name}</h3>
-                  <p className="text-blue-700 font-bold mt-1">${relatedProduct.price.toFixed(2)}</p>
+                  <p className="text-blue-700 font-bold mt-1">{formatPrice(relatedProduct.price)}</p>
                 </div>
               </Link>
             ))}

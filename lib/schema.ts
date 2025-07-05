@@ -1,4 +1,4 @@
-import type { ObjectId } from "mongodb"
+import { ObjectId } from "mongodb"
 import { connectToDatabase } from "./mongodb"
 
 // Define database schema types
@@ -10,6 +10,8 @@ export interface UserSchema {
   phone: string
   imageUrl?: string
   role: "admin" | "buyer"
+  resetToken?: string
+  resetTokenExpiry?: Date
   createdAt: Date
 }
 
@@ -54,7 +56,7 @@ export interface OrderSchema {
   }
   paymentInfo?: {
     method: "khalti" | "cash_on_delivery" | "bank_transfer"
-    status: "pending" | "completed" | "failed | sucessful"
+    status: "pending" | "completed" | "failed | successful"
     transactionId?: string
     paidAt?: Date
   }
@@ -77,6 +79,16 @@ export interface PaymentSchema {
   }
   createdAt: Date
   updatedAt?: Date
+}
+
+// Define contact form schema
+export interface ContactSchema {
+  _id?: ObjectId
+  name: string
+  email: string
+  subject: string
+  message: string
+  timestamp: Date
 }
 
 // Initialize database with collections and indexes
@@ -111,6 +123,11 @@ export async function initializeDatabase() {
     await db.createCollection("payments")
     await db.collection("payments").createIndex({ orderId: 1 })
     await db.collection("payments").createIndex({ userId: 1 })
+  }
+
+  if (!collectionNames.includes("contactMessages")) {
+    await db.createCollection("contactMessages")
+    await db.collection("contactMessages").createIndex({ email: 1 })
   }
 
   console.log("Database initialized successfully")

@@ -5,6 +5,8 @@ export interface Product {
   price: number
   stock: number
   imageUrl: string
+  averageRating?: number
+  reviewCount?: number
   createdAt: Date
 }
 

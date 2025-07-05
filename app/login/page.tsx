@@ -75,6 +75,11 @@ export default function Login() {
             required
             className="w-full border rounded px-3 py-2"
           />
+          <div className="text-right mt-1">
+            <Link href="/forgot-password" className="text-sm text-blue-600 hover:underline">
+              Forgot password?
+            </Link>
+          </div>
         </div>
 
         <button

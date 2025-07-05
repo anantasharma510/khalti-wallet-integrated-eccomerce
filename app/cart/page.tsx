@@ -6,6 +6,7 @@ import Image from "next/image"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/context/AuthContext"
+import { formatPrice } from "@/lib/utils"
 
 export default function CartPage() {
   const { cart, removeFromCart, updateQuantity, clearCart } = useCart()
@@ -80,7 +81,7 @@ export default function CartPage() {
                     </div>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.product.price.toFixed(2)}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatPrice(item.product.price)}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <button
@@ -99,7 +100,7 @@ export default function CartPage() {
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  ${(item.product.price * item.quantity).toFixed(2)}
+                  {formatPrice(item.product.price * item.quantity)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <button onClick={() => removeFromCart(item.product._id)} className="text-red-600 hover:text-red-900">
@@ -113,7 +114,7 @@ export default function CartPage() {
       </div>
 
       <div className="flex justify-between items-center border-t pt-4">
-        <div className="text-xl font-bold">Total: ${totalPrice.toFixed(2)}</div>
+        <div className="text-xl font-bold">Total: {formatPrice(totalPrice)}</div>
         <div className="space-x-4">
           <button onClick={() => clearCart()} className="px-4 py-2 border rounded hover:bg-gray-100">
             Clear Cart

@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server"
 import { connectToDatabase } from "@/lib/mongodb"
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "@/lib/auth"
 import { uploadImage } from "@/lib/uploadImage"
+import { checkAdminAuth } from "@/lib/adminAuth"
 
 // Get all products
 export async function GET() {
@@ -20,10 +19,9 @@ export async function GET() {
 // Create a new product (admin only)
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions)
-
-    if (!session || session.user.role !== "admin") {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+    const authResult = await checkAdminAuth()
+    if (authResult.error) {
+      return authResult.error
     }
 
     const formData = await request.formData()
