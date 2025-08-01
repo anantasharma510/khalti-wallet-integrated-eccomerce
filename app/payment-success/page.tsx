@@ -128,13 +128,13 @@ function PaymentSuccessContent() {
         {/* Success Header */}
         <div className="text-center mb-8">
           <div className="text-green-500 text-6xl mb-4">✅</div>
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Payment Successful!</h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2"> Payment Successfully complete !</h1>
           <p className="text-gray-600">Thank you for your purchase. Your order has been confirmed.check your mail</p>
         </div>
 
         {/* Payment Details */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-4">Payment Details</h2>
+          <h2 className="text-xl font-semibold mb-4"> Payment Details</h2>
           <div className="space-y-3">
             <div className="flex justify-between">
               <span className="text-gray-600">Transaction ID:</span>
